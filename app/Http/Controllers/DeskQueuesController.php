@@ -77,8 +77,7 @@ class DeskQueuesController extends Controller
                     'printer_ip' => $screen->printer->ip,
                     'floor' => $area->floor->name_en,
                 ];
-
-//                \EPSON::deskPrint($printData);
+                \EPSON::deskPrint($printData);
             }
 
             $data['availableDeskQueue'] = DeskQueue::getAvailableDeskQueueView($area->id);

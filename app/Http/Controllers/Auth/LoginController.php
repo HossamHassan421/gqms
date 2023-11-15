@@ -138,7 +138,7 @@ class LoginController extends Controller
         }
 
         // Store Log User Login
-//        storeLogUserLogin();
+        storeLogUserLogin();
     }
 
     // Custom Logout
