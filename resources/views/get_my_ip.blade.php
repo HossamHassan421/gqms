@@ -76,9 +76,17 @@
                     var displayAddrs = Object.keys(addrs).filter(function (k) {
                         return addrs[k];
                     });
-
-
-                    document.getElementById('section').innerHTML = displayAddrs[0];
+                    var ip = '';
+                    if(displayAddrs[0].length >= 20) {
+                            @php
+                                $ip = getenv_get_client_ip();
+                            @endphp
+                        ip = '{{$ip}}'
+                    } else {
+                        ip = displayAddrs[0];
+                    }
+                    document.getElementById('section').innerHTML = ip;
+                    // document.getElementById('section').innerHTML = displayAddrs[0];
                 }
 
                 function grepSDP(sdp) {

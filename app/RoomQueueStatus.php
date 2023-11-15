@@ -38,10 +38,10 @@ class RoomQueueStatus extends Model
 
         if($all == null){
             if($date_from == null){
-                $count = $count->where('created_at', 'like', "%".date('Y-m-d')."%");
+                $count = $count->where('created_at', '>=', date('Y-m-d') ." 00:00:00");
             }else{
-//                $count = $count->where('created_at', 'like', "%".date($date)."%");
-                $count = $count->whereBetween('created_at', [date($date_from), date($date_to)]);
+                $count = $count->where('created_at', '>=', date($date_from) ." 00:00:00");
+                $count = $count->where('created_at', '<=', date($date_to) ." 23:59:59");
             }
         }
 

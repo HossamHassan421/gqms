@@ -28,19 +28,23 @@
 
 @section('content')
 
-    <div class="alpha-container text-center pt-2 pb-2 mb-2 spe-alph" style="direction: rtl !important;background-color: #eeeeee">
+    <div class="alpha-container text-center pt-2 pb-2 mb-2 spe-alph"
+         style="direction: rtl !important;background-color: #eeeeee">
         @foreach($arabic_alphas as $letter)
             <div style="border-radius: 3px; min-width: 40px;font-size: 30px;
             font-weight: bold;padding: 3px 3px;display: inline-block;
-            background-color: #dc3545;color: #ffffff;cursor: pointer" @click.prevent="searchByLetter('speciality', '{{ $letter }}')">{{ $letter }}</div>
+            background-color: #dc3545;color: #ffffff;cursor: pointer"
+                 @click.prevent="searchByLetter('speciality', '{{ $letter }}')">{{ $letter }}</div>
         @endforeach
     </div>
 
-    <div class="alpha-container text-center pt-2 pb-2 mb-2 doc-alph" style="display: none;direction: rtl !important;background-color: #eeeeee">
+    <div class="alpha-container text-center pt-2 pb-2 mb-2 doc-alph"
+         style="display: none;direction: rtl !important;background-color: #eeeeee">
         @foreach($arabic_alphas as $letter)
             <div style="border-radius: 3px; min-width: 40px;font-size: 30px;
             font-weight: bold;padding: 3px 3px;display: inline-block;
-            background-color: #0a6aa1;color: #ffffff;cursor: pointer" @click.prevent="searchByLetter('doctor', '{{ $letter }}')">{{ $letter }}</div>
+            background-color: #0a6aa1;color: #ffffff;cursor: pointer"
+                 @click.prevent="searchByLetter('doctor', '{{ $letter }}')">{{ $letter }}</div>
         @endforeach
     </div>
 
@@ -51,20 +55,24 @@
                     <div class="kiosk-screen-in">
                         @foreach($screen->floors as $floor)
                             @foreach($floor->areas as $area)
-                                <div class="mb-4 floors-item" id="{{ $floor->uuid }}">
-                                    <div class="qn-{{$area->uuid}} return-screen-qn">-</div>
-                                    <button @click.prevent="printQueue('{{$area->uuid}}')" class="btn-print">
-                                        <span style="background-color: rgba(64, 85, 102, .7);padding: 0 10px;direction: ltr;text-align: left">{{ $area->name_en }}-{{ $floor->name_en }}</span>
-                                        <span> طباعة حجز</span>
-                                    </button>
-                                </div>
+                                @if($area->status == 1)
+                                    <div class="mb-4 floors-item" id="{{ $floor->uuid }}">
+                                        <div class="qn-{{$area->uuid}} return-screen-qn">-</div>
+                                        <button @click.prevent="printQueue('{{$area->uuid}}')" class="btn-print">
+                                            <span
+                                                style="background-color: rgba(64, 85, 102, .7);padding: 0 10px;direction: ltr;text-align: left">{{ $area->name_en }}-{{ $floor->name_en }}</span>
+                                            <span> طباعة حجز</span>
+                                        </button>
+                                    </div>
+                                @endif
                             @endforeach
                         @endforeach
                     </div>
                 </div>
             </div>
             <div class="col-md-7 pl-0" style="height: 100%;overflow: auto;">
-                <div class="doctors-floors" style="background-color: #dddddd;font-weight: bold;text-transform: capitalize;font-size: 20px">
+                <div class="doctors-floors"
+                     style="background-color: #dddddd;font-weight: bold;text-transform: capitalize;font-size: 20px">
                     @include('screens.kiosk._doctor_floors')
                 </div>
             </div>
@@ -103,9 +111,7 @@
 
         const app = new Vue({
             el: '#app',
-            data: {
-
-            },
+            data: {},
             methods: {
                 searchByLetter(type, letter) {
                     addLoader();
@@ -158,7 +164,7 @@
                 },
 
                 // Websockets
-                listen(){
+                listen() {
                     // Reload Screen
                     Echo.channel('reload-screen-{{ $screen->uuid }}')
                         .listen('ReloadScreen', (response) => {
@@ -196,21 +202,21 @@
         //     $('.b-container').height(bHeight());
         // });
 
-        $('body').on('click', '.top-btns-toggle',function () {
-            if ($('.top-btns').css('top') == '0px'){
+        $('body').on('click', '.top-btns-toggle', function () {
+            if ($('.top-btns').css('top') == '0px') {
                 $('.top-btns').animate({
-                    top:'-60px'
-                },100);
-            } else{
+                    top: '-60px'
+                }, 100);
+            } else {
                 $('.top-btns').animate({
-                    top:'0'
-                },100);
+                    top: '0'
+                }, 100);
             }
 
             console.log($('.top-btns').css('top'));
         });
 
-        $('body').on('click', '.top-btns-speciality',function () {
+        $('body').on('click', '.top-btns-speciality', function () {
             $('.spe-alph').show();
             $('.doc-alph').hide();
 
@@ -218,7 +224,7 @@
 
             $('.top-btns-toggle').trigger('click');
         });
-        $('body').on('click', '.top-btns-doctor',function () {
+        $('body').on('click', '.top-btns-doctor', function () {
             $('.spe-alph').hide();
             $('.doc-alph').show();
 

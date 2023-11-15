@@ -4,7 +4,7 @@
 
 @section('post_css')
     <style>
-        #datatable-history-buttons_wrapper{
+        #datatable-history-buttons_wrapper {
             padding: 0;
         }
     </style>
@@ -50,10 +50,12 @@
                     Here you will find all the login users and rooms.
                 </p>
 
-                <table data-page-length='50' id="datatable-history-buttons" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+                <table data-page-length='50' id="datatable-history-buttons"
+                       class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
                     <thead>
                     <tr>
                         <th>User</th>
+                        <th>Clinic</th>
                         <th>Room</th>
                         <th>Called</th>
                         <th>Skipped</th>
@@ -67,9 +69,11 @@
                     <tbody>
                     @if(request()->has('show') && request()->show == 0)
                         @foreach($users as $user)
-                            @if(\App\RoomQueueStatus::where('user_id', $user->id)->where('created_at', 'like', "%".request()->date_from."%")->first())
+                            @if(\App\RoomQueueStatus::where('user_id', $user->id)->where('created_at', '>=', request()->date_from . ' 00:00:00')
+                                ->where('created_at', '<=', request()->date_to ." 23:59:59")->first())
                                 <tr>
-                                    <td>{{ $user->name }}</td>
+                                    <td>@if(isset($user->doctor->id)) @if(lang() == 'ar') {{$user->doctor->name_ar}} @else {{$user->doctor->name_en}} @endif @endif</td>
+                                    <td>{{ isset($user->doctor->speciality->id) ? lang() == 'ar' ? $user->doctor->speciality->name_ar : $user->doctor->speciality->name_en : '-' }}</td>
                                     <td>{{ ($user->room)? $user->room->name_en : '-' }}</td>
                                     <td>{{ getDoctorReport($user, config('vars.room_queue_status.called'), $all, $date_from, $date_to) }}</td>
                                     <td>{{ getDoctorReport($user, config('vars.room_queue_status.skipped'), $all, $date_from, $date_to) }}</td>
@@ -83,7 +87,8 @@
                     @else
                         @foreach($users as $user)
                             <tr>
-                                <td>{{ $user->name }}</td>
+                                <td>@if(isset($user->doctor->id)) @if(lang() == 'ar') {{$user->doctor->name_ar}} @else {{$user->doctor->name_en}} @endif @endif</td>
+                                <td>{{ isset($user->doctor->speciality->id) ? lang() == 'ar' ? $user->doctor->speciality->name_ar : $user->doctor->speciality->name_en : '-' }}</td>
                                 <td>{{ ($user->room)? $user->room->name_en : '-' }}</td>
                                 <td>{{ getDoctorReport($user, config('vars.room_queue_status.called'), $all, $date_from, $date_to) }}</td>
                                 <td>{{ getDoctorReport($user, config('vars.room_queue_status.skipped'), $all, $date_from, $date_to) }}</td>
@@ -117,25 +122,25 @@
                 {
                     extend: 'copyHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 },
                 {
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 }
             ],

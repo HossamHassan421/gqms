@@ -601,7 +601,7 @@
                         {{--}--}}
                     {{--});--}}
 
-                    console.log(displayAddrs[0]);
+                    //console.log(displayAddrs[0]);
                     // document.getElementById('list').textContent = displayAddrs.join(" or perhaps ") || "n/a";
                 }
 

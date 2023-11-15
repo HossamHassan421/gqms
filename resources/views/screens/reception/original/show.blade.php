@@ -16,7 +16,7 @@
 
     <audio id="call_sound" preload="none" src="{{ url('assets/sounds/call_1.wav') }}"></audio>
 
-    {{--<embed src="{{ url('assets/sounds/call_1.wav') }}" autostart="false" width="0" height="0" id="sound1" enablejavascript="true">--}}
+    {{-- <embed src="{{ url('assets/sounds/call_1.wav') }}" autostart="false" width="0" height="0" id="sound1" enablejavascript="true"> --}}
 
 @endsection
 
@@ -28,52 +28,57 @@
         // }
 
         const app = new Vue({
-            el : '#app',
-            data : {
-                desk_uuid : '',
-                active_desk : false,
+            el: '#app',
+            data: {
+                desk_uuid: '',
+                active_desk: false,
             },
-            methods : {
-                listen(){
+            methods: {
+                listen() {
                     // Flash Desk Queue
                     Echo.channel('desk-queue-screen')
                         .listen('NextDeskQueue', (response) => {
                             var targetEl = $('#' + response.desk + ' .number-app');
+                            if (targetEl.length) {
+                                targetEl.text(response.queue);
 
-                            targetEl.text(response.queue);
+                                targetEl.addClass("bounce-class").one(
+                                    "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend",
+                                    function() {
+                                        targetEl.removeClass("bounce-class");
+                                    });
 
-                            targetEl.addClass( "bounce-class" ).one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
-                                targetEl.removeClass( "bounce-class" );
-                            });
+                                {{-- PlaySound('{{ url('assets/sounds/call_1.wav') }}'); --}}
+                                document.getElementById('call_sound').play();
 
-                            {{--PlaySound('{{ url('assets/sounds/call_1.wav') }}');--}}
-                            document.getElementById('call_sound').play();
-
-                            console.log(response);
+                                console.log(response);
+                            }
                         });
 
                     // Flash Room Queue
                     Echo.channel('room-queue-screen')
                         .listen('NextRoomQueue', (response) => {
                             var targetEl = $('#' + response.room + ' .number-app');
+                            if (targetEl.length) {
+                                targetEl.text(response.queue);
 
-                            targetEl.text(response.queue);
+                                targetEl.addClass("bounce-class").one(
+                                    "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend",
+                                    function() {
+                                        targetEl.removeClass("bounce-class");
+                                    });
 
-                            targetEl.addClass( "bounce-class" ).one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
-                                targetEl.removeClass( "bounce-class" );
-                            });
-
-                            {{--PlaySound('{{ url('assets/sounds/call_1.wav') }}');--}}
-                            document.getElementById('call_sound').play();
-
+                                {{-- PlaySound('{{ url('assets/sounds/call_1.wav') }}'); --}}
+                                document.getElementById('call_sound').play();
+                            }
                             console.log(response);
                         });
 
                     Echo.channel('desk-queue-screen')
                         .listen('DeskStatus', (response) => {
-                            if(response.available == 1){
+                            if (response.available == 1) {
                                 $('#' + response.desk).removeClass('canceled-res');
-                            }else{
+                            } else {
                                 $('#' + response.desk).addClass('canceled-res');
                             }
                         });
@@ -83,9 +88,9 @@
                             console.log(response);
                             $('#doctor-' + response.room).text(response.doctor);
                             $('#clinic-' + response.room).text(response.clinic);
-                            if(response.available == 1){
+                            if (response.available == 1) {
                                 $('#' + response.room).removeClass('canceled-res');
-                            }else{
+                            } else {
                                 $('#' + response.room).addClass('canceled-res');
                             }
                         });
@@ -95,5 +100,6 @@
                 this.listen();
             }
         });
+
     </script>
 @endsection

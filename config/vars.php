@@ -2,7 +2,7 @@
 
 return [
     'public' => 'public',
-    'syncData' => false,
+    'syncData' => true,
     'uuid_ver' => 4,
     'default_password' => 12345678,
     'authorized_users' => [1],

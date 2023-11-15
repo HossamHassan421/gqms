@@ -87,6 +87,6 @@ class ReportsController extends Controller
         // Store User Action Log
         storeLogUserAction(\App\Enums\LogUserActions::$name['IndexDoctorReport'], 'Get',route('reports.doctors.index'));
 
-        return view('reports.doctors.index', $data);
+        return view('reports\doctors\index', $data);
     }
 }

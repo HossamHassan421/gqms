@@ -1,3 +1,38 @@
+# Laravel specific
+bootstrap/cache/
+public/storage/
+public/uploads/
+storage/*.key
+.env.*.php
+.env.php
+.env
+
+# Composer related
+/vendor/
+composer.lock
+
+# Logs and other generated files
+storage/logs/
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+storage/app/public/
+public/hot/
+public/web.config
+mix-manifest.json
+
+# IDE files
+.idea/
+.phpstorm.meta.php
+*.iml
+*.ipr
+*.iws
+
+# Miscellaneous
+Thumbs.db
+.DS_Store
+
 /node_modules
 /public/hot
 /public/storage
@@ -12,3 +47,8 @@ npm-debug.log
 yarn-error.log
 .env
 .phpunit.result.cache
+
+
+
+
+

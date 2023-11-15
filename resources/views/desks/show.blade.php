@@ -463,7 +463,6 @@
                             removeLoarder();
                         });
                 },
-
                 done(){
                     addLoader('.current-queue-div');
                     var url = '{{ url('dashboard') }}/desk/{{$desk->uuid}}/' + this.desk_queue_uuid + '/' + this.reservation_resource + '/done';

@@ -165,7 +165,6 @@ function upload_file($type, $file, $path){
 
 // Function to get the client IP address
 function getenv_get_client_ip() {
-    $ipaddress = '';
     if (getenv('HTTP_CLIENT_IP'))
         $ipaddress = getenv('HTTP_CLIENT_IP');
     else if(getenv('HTTP_X_FORWARDED_FOR'))

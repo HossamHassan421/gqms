@@ -228,7 +228,9 @@ class RoomQueue extends Model
      */
     public static function getRoomQueuesByDoctor($doctor_source_id)
     {
-        $doctorQueues = self::where('doctor_id', $doctor_source_id)->get();
+        $doctorQueues = self::where('doctor_id', $doctor_source_id)
+            ->where('created_at', 'like', "%".date('Y-m-d')."%")
+            ->get();
 
         if(count($doctorQueues) > 0){
             $doctorQueues = self::where('doctor_id', $doctor_source_id)
@@ -254,14 +256,14 @@ class RoomQueue extends Model
             ->where('room_id', $room_id)
             ->first();
 
-        if(count($roomQueues) == 0){
+        if(empty($roomQueues)){
             $roomQueues = self::where('status', config('vars.room_queue_status.patient_in'))
 //                ->where('created_at', 'like', "%".date('Y-m-d')."%")
                 ->where('room_id', $room_id)
                 ->first();
         }
 
-        if(count($roomQueues) == 0){
+        if(empty($roomQueues)){
             $roomQueues = self::where('status', config('vars.room_queue_status.called'))
                 ->where('created_at', 'like', "%".date('Y-m-d')."%")
                 ->where('room_id', $room_id)

@@ -78,7 +78,7 @@ class DeskQueuesController extends Controller
                     'floor' => $area->floor->name_en,
                 ];
 
-                \EPSON::deskPrint($printData);
+//                \EPSON::deskPrint($printData);
             }
 
             $data['availableDeskQueue'] = DeskQueue::getAvailableDeskQueueView($area->id);
@@ -171,7 +171,6 @@ class DeskQueuesController extends Controller
         }
 
         $data['desk'] = Desk::getBy('uuid', $desk_uuid);
-
         $data['nextQueue'] = DeskQueue::where('area_id', $data['desk']->area_id)
             ->where('created_at', 'like', "%".date('Y-m-d')."%")
             ->where('desk_id', $data['desk']->id)

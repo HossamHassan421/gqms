@@ -21,27 +21,32 @@ class UserLoginHistory extends Model
     protected $hidden = [];
 
     // Store login history
-    public static function store($user = null){
-        if (is_null($user)){
-            if (auth()->check()){
+    public static function store($user = null)
+    {
+        if (is_null($user)) {
+            if (auth()->check()) {
                 $user = auth()->user();
-            }else{
+            } else {
                 return false;
             }
         }
 
-        $browser = (function_exists('get_browser')) ? json_encode(get_browser(null, false)) : '';
+        try {
+            $browser = (function_exists('get_browser')) ? json_encode(get_browser(null, false)) : '';
 
-        if (User::find($user->id)){
-            $result = self::create([
-                'user_id' => $user->id,
-                'login_ip' => getenv_get_client_ip(),
-                'login_data' => $browser,
-            ]);
+            if (User::find($user->id)) {
+                $result = self::create([
+                    'user_id' => $user->id,
+                    'login_ip' => getenv_get_client_ip(),
+                    'login_data' => $browser,
+                ]);
 
-            return $result;
-        }else{
-            return false;
+                return $result;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+
         }
 
 //        if (User::find($user->id)){
@@ -75,7 +80,8 @@ class UserLoginHistory extends Model
     }
 
     // User Relation
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo('App\User');
     }
 }

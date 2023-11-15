@@ -7,9 +7,9 @@
     <div class="container-fluid mt-2">
         <div class="row">
             <!-- Doctor Queue -->
-            @include('screens.reception._room_queue')
+        @include('screens.reception._room_queue')
 
-            <!-- Desk Queue -->
+        <!-- Desk Queue -->
             @include('screens.reception._desk_queue')
         </div>
     </div>
@@ -29,26 +29,26 @@
         // }
 
         const app = new Vue({
-            el : '#app',
-            data : {
-                desk_uuid : '',
-                active_desk : false,
+            el: '#app',
+            data: {
+                desk_uuid: '',
+                active_desk: false,
             },
-            methods : {
-                listen(){
+            methods: {
+                listen() {
                     // Flash Desk Queue
                     Echo.channel('desk-queue-screen-{{ $screen->area->uuid }}')
                         .listen('NextDeskQueue', (response) => {
                             var targetEl = $('#' + response.desk + ' .number-app');
-
-                            targetEl.text(response.queue);
-
-                            targetEl.addClass( "bounce-class" ).one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
-                                targetEl.removeClass( "bounce-class" );
-                            });
-
+                            if (targetEl.length) {
+                                targetEl.text(response.queue);
+                                targetEl.addClass("bounce-class").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
+                                    targetEl.removeClass("bounce-class");
+                                });
+                                document.getElementById('call_sound').play();
+                            }
+                            console.log(response);
                             {{--PlaySound('{{ url('assets/sounds/call_1.wav') }}');--}}
-                            document.getElementById('call_sound').play();
 
                             // $('#call_tts_url').attr('src', 'https://translate.google.com/translate_tts?tl=en&q=agent%20number%20'+ response.desk_name +'%20-%20desk%20number%20'+ response.queue +'&client=tw-ob');
                             // $('#call_tts_url').attr('src', response.ttsULR);
@@ -70,34 +70,30 @@
                             //         console.log('E');
                             //     });
                             // }
-
-                            console.log(response);
                         });
 
                     // Flash Room Queue
                     Echo.channel('room-queue-screen-{{ $screen->area->uuid }}')
-                    // Echo.channel('room-queue-screen')
+                        // Echo.channel('room-queue-screen')
                         .listen('NextRoomQueue', (response) => {
                             var targetEl = $('#' + response.room + ' .number-app');
-
-                            targetEl.text(response.queue);
-
-                            targetEl.addClass( "bounce-class" ).one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
-                                targetEl.removeClass( "bounce-class" );
-                            });
-
-                            {{--PlaySound('{{ url('assets/sounds/call_1.wav') }}');--}}
-                            document.getElementById('call_sound').play();
-
+                            if (targetEl.length) {
+                                targetEl.text(response.queue);
+                                targetEl.addClass("bounce-class").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
+                                    targetEl.removeClass("bounce-class");
+                                });
+                                document.getElementById('call_sound').play();
+                                {{--PlaySound('{{ url('assets/sounds/call_1.wav') }}');--}}
+                            }
                             console.log(response);
                         });
 
                     Echo.channel('desk-queue-screen')
                         .listen('DeskStatus', (response) => {
-                            if(response.available == 1){
+                            if (response.available == 1) {
                                 $('#row-' + response.desk).removeClass('canceled-res-container');
                                 $('#' + response.desk).removeClass('canceled-res');
-                            }else{
+                            } else {
                                 $('#row-' + response.desk).addClass('canceled-res-container');
                                 $('#' + response.desk).addClass('canceled-res');
                             }
@@ -108,11 +104,11 @@
                             console.log(response);
                             $('#doctor-' + response.room).text(response.doctor);
                             $('#clinic-' + response.room).text(response.clinic);
-                            if(response.available == 1){
+                            if (response.available == 1) {
                                 $('#row-div' + response.room).removeClass('canceled-res-div-container');
                                 $('#row-' + response.room).removeClass('canceled-res-container');
                                 $('#' + response.room).removeClass('canceled-res');
-                            }else{
+                            } else {
                                 $('#row-div' + response.room).addClass('canceled-res-div-container');
                                 $('#row-' + response.room).addClass('canceled-res-container');
                                 $('#' + response.room).addClass('canceled-res');

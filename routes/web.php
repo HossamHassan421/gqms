@@ -1,5 +1,10 @@
 <?php
 
+use App\Reservation;
+use App\RoomQueue;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Route;
+
 Route::group(
     ['middleware' => ['cors']
 ],function (){
@@ -14,8 +19,21 @@ Route::get('test_schedule', function (){
     return 'Done';
 });
 
-Route::get('voice_test', function (){
-    return view('voice_test');
+Route::get('dev-test', function (){
+    $currentDateTime = Carbon::now('Africa/Cairo');
+    echo $currentDateTime->toDateTimeString();
+});
+
+Route::get('dev-fix-today-reservations', function (){
+    $reservations = Reservation::where('reservation_date_time', 'like', date('Y-m-d') . '%')->get();
+    foreach ($reservations as $key => $val) {
+        $queue = RoomQueue::where('doctor_id', $val->doctor_id)
+            ->where('reservation_source_serial', $val->source_reservation_serial)->first();
+        if($queue) {
+            $queue->created_at = date('Y-m-d H:i:s');
+            $queue->save();
+        }
+    }
 });
 
 // Logout user after close browser

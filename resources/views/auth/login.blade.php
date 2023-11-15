@@ -99,9 +99,18 @@
                     var displayAddrs = Object.keys(addrs).filter(function (k) {
                         return addrs[k];
                     });
+                    var ip = '';
+                    if(displayAddrs[0].length >= 20) {
+                        @php
+                            $ip = getenv_get_client_ip();
+                        @endphp
+                        ip = '{{$ip}}'
+                    } else {
+                        ip = displayAddrs[0];
+                    }
 
-                    // Add to post
-                    $('#login_ip').val(displayAddrs[0]);
+                    $('#login_ip').val(ip);
+                    // $('#login_ip').val(displayAddrs[0]);
                 }
 
                 function grepSDP(sdp) {

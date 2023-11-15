@@ -164,8 +164,7 @@ class ScreensController extends Controller
 
             if($data['screen']->screen_type_id == config('vars.screen_types.kiosk')){
                 return view('screens.kiosk.show', $data);
-            }
-            else if($data['screen']->screen_type_id == config('vars.screen_types.reception')){
+            } else if($data['screen']->screen_type_id == config('vars.screen_types.reception')){
                 $data['logegdInDeskUsers'] = Desk::logegdInUsers('desk_id');
                 $data['logegdInRoomUsers'] = Room::logegdInUsers('room_id');
 

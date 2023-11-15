@@ -224,7 +224,7 @@
                     var displayAddrs = Object.keys(addrs).filter(function (k) {
                         return addrs[k];
                     });
-                    console.log(displayAddrs[0]);
+                    //console.log(displayAddrs[0]);
                 }
 
                 function grepSDP(sdp) {
