@@ -138,7 +138,7 @@ class LoginController extends Controller
         }
 
         // Store Log User Login
-        storeLogUserLogin();
+//        storeLogUserLogin();
     }
 
     // Custom Logout
@@ -168,6 +168,8 @@ class LoginController extends Controller
         }
 
         auth()->logout();
+
+        session()->forget('permissions');
         return redirect(route('login'));
     }
 }
