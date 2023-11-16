@@ -52,6 +52,15 @@
             background-color: #FFFFFF;
             padding: 2px;
             color: #2E5272;
+            font-size: 3rem;
+            font-weight: bold;
+            width:100%;
+            display: block;
+        }
+        .number-app2{
+            background-color: #FFFFFF;
+            padding: 2px;
+            color: #2E5272;
             font-size: 2rem;
             font-weight: bold;
             width:100%;

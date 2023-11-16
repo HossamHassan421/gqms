@@ -233,6 +233,15 @@ table, tr, td{
     width:100%;
     display: block;
 }
+.number-app2{
+    background-color: #FFFFFF;
+    padding: 2px;
+    color: #2E5272;
+    font-size: 32px;
+    font-weight: bold;
+    width:100%;
+    display: block;
+}
 .text-app{
     color: #FFFFFF;
     font-size: 45px;

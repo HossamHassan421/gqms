@@ -27,7 +27,7 @@
                     <div class="txt-3 text-center">
                         <div class="row">
                             <div class="col-md-12">
-                                <span class="number-app">{{ $desk->name_en }}</span>
+                                <span class="number-app2">{{ $desk->name_en }}</span>
                             </div>
                             {{--<div class="col-md-6">--}}
                                 {{--<span class="text-app">كاشير</span>--}}

@@ -30,7 +30,7 @@
                             <div class="txt-3">
                                 <div class="row">
                                     <div class="col-md-4 text-center">
-                                        <span class="number-app">{{ $room->name_en }}</span>
+                                        <span class="number-app2">{{ $room->name_en }}</span>
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <span id="doctor-{{ $room->uuid }}" class="text-app-1">{{ ($room->user)? ((!empty($room->user->doctor->nickname))? 'ا.د/' . $room->user->doctor->nickname : 'ا.د' . $room->user->doctor->name_ar) : '-' }}</span>
