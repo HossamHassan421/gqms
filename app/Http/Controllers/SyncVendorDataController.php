@@ -114,45 +114,18 @@ class SyncVendorDataController extends Controller
         }
 
         DB::connection('oracle')->table('vw_doctor_table')->where(function ($q) {
-            $q->whereNull('queue_system_integ_flag');
-            $q->orWhere('queue_system_integ_flag', '');
-            $q->orWhere('queue_system_integ_flag', 'HIS_NEW');
-            $q->orWhere('queue_system_integ_flag', 'HIS_Update');
-            $q->orWhere('queue_system_integ_flag', 'HIS_UPDATE');
+            $q->where('queue_system_integ_flag', '!=', 'PROCEED_PMS');
+//            $q->whereNull('queue_system_integ_flag');
+//            $q->orWhere('queue_system_integ_flag', '');
+//            $q->orWhere('queue_system_integ_flag', 'HIS_NEW');
+//            $q->orWhere('queue_system_integ_flag', 'HIS_Update');
+//            $q->orWhere('queue_system_integ_flag', 'HIS_UPDATE');
         })->orderBy('emp_id')->chunk(100, function ($data) {
             foreach ($data as $key => $val) {
                 if ($val->emp_name_en) {
-                    if (empty($val->queue_system_integ_flag) || $val->queue_system_integ_flag == 'HIS_NEW') {
-                        $user = User::create([
-                            'email' => ' ',
-                            'name' => $val->emp_name_en,
-                            'password' => bcrypt(config('vars.default_password')),
-                            'type' => UserTypes::$typesReverse['Doctor'],
-                            'status' => (($val->workstatus == 1) ? 1 : 0),
-                            'created_by' => 0,
-                            'updated_by' => 0,
-                        ]);
-                        User::edit([
-                            'email' => strtolower(explode(' ', $val->emp_name_en)[0]) . ($user->id + 5)
-                        ], $user->id);
-                        Doctor::store([
-                            'user_id' => $user->id,
-                            'source_doctor_id' => $val->emp_id,
-                            'source_speciality_id' => $val->special_spec_id,
-                            'name_ar' => $val->emp_name_ar,
-                            'name_en' => $val->emp_name_en,
-                            'gander' => $val->emp_gendur,
-                            'workstatus' => (($val->workstatus == 1) ? 1 : 0)
-                        ]);
-
-                        // Add Role Relation
-                        $user->roles()->attach(config('vars.roles.doctor'));
-
-                        DB::connection('oracle')->table('vw_doctor_table')->where('emp_id', $val->emp_id)
-                            ->update(['queue_system_integ_flag' => 'PROCEED_PMS']);
-                    } else {
+//                    if (empty($val->queue_system_integ_flag) || $val->queue_system_integ_flag == 'HIS_NEW') {
                         $doctor = Doctor::getBy('source_doctor_id', $val->emp_id);
-                        if ($doctor) {
+                        if($doctor) {
                             Doctor::editBySourceDoctorId([
                                 'source_doctor_id' => $val->emp_id,
                                 'source_speciality_id' => $val->special_spec_id,
@@ -169,7 +142,7 @@ class SyncVendorDataController extends Controller
                             $user = User::create([
                                 'email' => ' ',
                                 'name' => $val->emp_name_en,
-                                'password' => Hash::make(config('vars.defualt_password')),
+                                'password' => bcrypt(config('vars.default_password')),
                                 'type' => UserTypes::$typesReverse['Doctor'],
                                 'status' => (($val->workstatus == 1) ? 1 : 0),
                                 'created_by' => 0,
@@ -178,6 +151,8 @@ class SyncVendorDataController extends Controller
                             User::edit([
                                 'email' => strtolower(explode(' ', $val->emp_name_en)[0]) . ($user->id + 5)
                             ], $user->id);
+                            // Add Role Relation
+                            $user->roles()->attach(config('vars.roles.doctor'));
                             Doctor::store([
                                 'user_id' => $user->id,
                                 'source_doctor_id' => $val->emp_id,
@@ -191,7 +166,51 @@ class SyncVendorDataController extends Controller
 
                         DB::connection('oracle')->table('vw_doctor_table')->where('emp_id', $val->emp_id)
                             ->update(['queue_system_integ_flag' => 'PROCEED_PMS']);
-                    }
+//                    } else {
+//                        $doctor = Doctor::getBy('source_doctor_id', $val->emp_id);
+//                        if ($doctor) {
+//                            Doctor::editBySourceDoctorId([
+//                                'source_doctor_id' => $val->emp_id,
+//                                'source_speciality_id' => $val->special_spec_id,
+//                                'name_ar' => $val->emp_name_ar,
+//                                'name_en' => $val->emp_name_en,
+//                                'gander' => $val->emp_gendur,
+//                                'workstatus' => (($val->workstatus == 1) ? 1 : 0)
+//                            ], $val->emp_id);
+//                            User::edit([
+//                                'name' => $val->emp_name_en,
+//                                'status' => (($val->workstatus == 1) ? 1 : 0)
+//                            ], $doctor->user_id);
+//                        } else {
+//                            $user = User::create([
+//                                'email' => ' ',
+//                                'name' => $val->emp_name_en,
+//                                'password' => Hash::make(config('vars.defualt_password')),
+//                                'type' => UserTypes::$typesReverse['Doctor'],
+//                                'status' => (($val->workstatus == 1) ? 1 : 0),
+//                                'created_by' => 0,
+//                                'updated_by' => 0,
+//                            ]);
+//                            User::edit([
+//                                'email' => strtolower(explode(' ', $val->emp_name_en)[0]) . ($user->id + 5)
+//                            ], $user->id);
+//                            // Add Role Relation
+//                            $user->roles()->attach(config('vars.roles.doctor'));
+//
+//                            Doctor::store([
+//                                'user_id' => $user->id,
+//                                'source_doctor_id' => $val->emp_id,
+//                                'source_speciality_id' => $val->special_spec_id,
+//                                'name_ar' => $val->emp_name_ar,
+//                                'name_en' => $val->emp_name_en,
+//                                'gander' => $val->emp_gendur,
+//                                'workstatus' => (($val->workstatus == 1) ? 1 : 0)
+//                            ]);
+//                        }
+//
+//                        DB::connection('oracle')->table('vw_doctor_table')->where('emp_id', $val->emp_id)
+//                            ->update(['queue_system_integ_flag' => 'PROCEED_PMS']);
+//                    }
                 }
             }
         });
@@ -329,11 +348,12 @@ class SyncVendorDataController extends Controller
             ->table('VW_RESERVATIONS')
             ->whereRaw("reservation_date_time >= date '$today'")
             ->where(function ($q) {
-                $q->whereNull('queue_system_integ_flag');
-                $q->orWhere('queue_system_integ_flag', '');
-                $q->orWhere('queue_system_integ_flag', 'HIS_NEW');
-                $q->orWhere('queue_system_integ_flag', 'HIS_Update');
-                $q->orWhere('queue_system_integ_flag', 'HIS_UPDATE');
+                $q->where('queue_system_integ_flag', '!=', 'PROCEED_PMS');
+//                $q->whereNull('queue_system_integ_flag');
+//                $q->orWhere('queue_system_integ_flag', '');
+//                $q->orWhere('queue_system_integ_flag', 'HIS_NEW');
+//                $q->orWhere('queue_system_integ_flag', 'HIS_Update');
+//                $q->orWhere('queue_system_integ_flag', 'HIS_UPDATE');
             })->orderBy('ser')->chunk(100, function ($data) {
                 foreach ($data as $key => $val) {
 
@@ -354,9 +374,9 @@ class SyncVendorDataController extends Controller
 
                         // Check Reservation in our records
                         if ($reservation) {
-                            if(strtoupper($val->queue_system_integ_flag) == 'HIS_UPDATE'){
+//                            if(strtoupper($val->queue_system_integ_flag) == 'HIS_UPDATE'){
                                 Reservation::editBySourceReservationSer($array, $val->ser);
-                            }
+//                            }
                         } else {
                             Reservation::store($array);
                         }
