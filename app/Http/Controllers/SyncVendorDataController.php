@@ -348,9 +348,7 @@ class SyncVendorDataController extends Controller
             ->table('VW_RESERVATIONS')
             ->whereRaw("reservation_date_time >= date '$today'")
             ->where(function ($q) {
-                $q->where('queue_system_integ_flag', '!=', 'PROCEED_PMS');
-                $q->orWhere('queue_system_integ_flag', '!=', 'PROCEED_PMS1');
-                $q->orWhere('queue_system_integ_flag', '!=', 'PROCEED_PMS2');
+                $q->whereNotIn('queue_system_integ_flag', ['PROCEED_PMS', 'PROCEED_PMS1', 'PROCEED_PMS2']);
 //                $q->whereNull('queue_system_integ_flag');
 //                $q->orWhere('queue_system_integ_flag', 'HIS_NEW');
 //                $q->orWhere('queue_system_integ_flag', 'HIS_Update');
