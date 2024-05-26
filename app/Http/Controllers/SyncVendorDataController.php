@@ -349,8 +349,9 @@ class SyncVendorDataController extends Controller
             ->whereRaw("reservation_date_time >= date '$today'")
             ->where(function ($q) {
                 $q->where('queue_system_integ_flag', '!=', 'PROCEED_PMS');
+                $q->orWhere('queue_system_integ_flag', '!=', 'PROCEED_PMS1');
+                $q->orWhere('queue_system_integ_flag', '!=', 'PROCEED_PMS2');
 //                $q->whereNull('queue_system_integ_flag');
-//                $q->orWhere('queue_system_integ_flag', '');
 //                $q->orWhere('queue_system_integ_flag', 'HIS_NEW');
 //                $q->orWhere('queue_system_integ_flag', 'HIS_Update');
 //                $q->orWhere('queue_system_integ_flag', 'HIS_UPDATE');
@@ -385,8 +386,16 @@ class SyncVendorDataController extends Controller
                         RoomQueue::addOrUpdateQueueNumberToDoctor($val->doctor_id, $val->ser, $val->que_sys_ser, $val->servstatus, $val->cashier_flag);
 
                         // Update Ganzory Record Flag
+                        if($val->cashier_flag == 1) {
+                            // stage 2
+                            $queue_system_integ_flag = 'PROCEED_PMS2';
+
+                        } else {
+                            // stage 1
+                            $queue_system_integ_flag = 'PROCEED_PMS1';
+                        }
                         DB::connection('oracle')->table('VW_RESERVATIONS')->where('ser', $val->ser)
-                            ->update(['queue_system_integ_flag' => 'PROCEED_PMS']);
+                            ->update(['queue_system_integ_flag' => $queue_system_integ_flag]);
 
 //                        if (empty($val->queue_system_integ_flag) || strtoupper($val->queue_system_integ_flag) == 'HIS_NEW') {
 //                            Reservation::store($array);
