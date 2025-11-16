@@ -106,7 +106,7 @@
             @if ($users instanceof \Illuminate\Pagination\LengthAwarePaginator)
                 <div class="clearfix">
                     <div class="float-left">Pages numbers</div>
-                    <div class="float-right">{{ $users->links() }}</div>
+                    <div class="float-right">{{ $users->appends(request()->query())->links() }}</div>
                 </div>
             @endif
         </div>

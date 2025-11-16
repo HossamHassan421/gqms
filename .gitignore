@@ -47,8 +47,4 @@ npm-debug.log
 yarn-error.log
 .env
 .phpunit.result.cache
-
-
-
-
-
+.nvmrc

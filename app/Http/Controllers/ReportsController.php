@@ -39,7 +39,7 @@ class ReportsController extends Controller
 //                $data['users'] = $data['users']->join('desk_queue_statuses', 'users.id', '=', 'desk_queue_statuses.user_id');
 //            }
 
-            $data['users'] = $data['users']->groupBy('name')->get();
+            $data['users'] = $data['users']->groupBy('name')->paginate(50);
         }
 
         // Store User Action Log
@@ -80,13 +80,13 @@ class ReportsController extends Controller
             }
 
 
-            $data['users'] = $data['users']->groupBy('name')->get();
+            $data['users'] = $data['users']->groupBy('name')->paginate(50);
         }
 
 
         // Store User Action Log
         storeLogUserAction(\App\Enums\LogUserActions::$name['IndexDoctorReport'], 'Get',route('reports.doctors.index'));
 
-        return view('reports\doctors\index', $data);
+        return view('reports.doctors.index', $data);
     }
 }
