@@ -67,38 +67,19 @@
                     </thead>
 
                     <tbody>
-                    @if(request()->has('show') && request()->show == 0)
-                        @foreach($users as $user)
-                            @if(\App\RoomQueueStatus::where('user_id', $user->id)->where('created_at', '>=', request()->date_from . ' 00:00:00')
-                                ->where('created_at', '<=', request()->date_to ." 23:59:59")->first())
-                                <tr>
-                                    <td>@if(isset($user->doctor->id)) @if(lang() == 'ar') {{$user->doctor->name_ar}} @else {{$user->doctor->name_en}} @endif @endif</td>
-                                    <td>{{ isset($user->doctor->speciality->id) ? lang() == 'ar' ? $user->doctor->speciality->name_ar : $user->doctor->speciality->name_en : '-' }}</td>
-                                    <td>{{ ($user->room)? $user->room->name_en : '-' }}</td>
-                                    <td>{{ getDoctorReport($user, config('vars.room_queue_status.called'), $all, $date_from, $date_to) }}</td>
-                                    <td>{{ getDoctorReport($user, config('vars.room_queue_status.skipped'), $all, $date_from, $date_to) }}</td>
-                                    <td>{{ getDoctorReport($user, config('vars.room_queue_status.patient_in'), $all, $date_from, $date_to) }}</td>
-                                    <td>{{ getDoctorReport($user, config('vars.room_queue_status.patient_out'), $all, $date_from, $date_to) }}</td>
-                                    <td>{{ getPatientAverageTime($user, $date_from, $date_to) }}</td>
-                                    <td>{{ (getCurrentDoctorReport($user))? 'Serving queue ' . getCurrentDoctorReport($user)->queue_number : '-' }}</td>
-                                </tr>
-                            @endif
-                        @endforeach
-                    @else
-                        @foreach($users as $user)
-                            <tr>
-                                <td>@if(isset($user->doctor->id)) @if(lang() == 'ar') {{$user->doctor->name_ar}} @else {{$user->doctor->name_en}} @endif @endif</td>
-                                <td>{{ isset($user->doctor->speciality->id) ? lang() == 'ar' ? $user->doctor->speciality->name_ar : $user->doctor->speciality->name_en : '-' }}</td>
-                                <td>{{ ($user->room)? $user->room->name_en : '-' }}</td>
-                                <td>{{ getDoctorReport($user, config('vars.room_queue_status.called'), $all, $date_from, $date_to) }}</td>
-                                <td>{{ getDoctorReport($user, config('vars.room_queue_status.skipped'), $all, $date_from, $date_to) }}</td>
-                                <td>{{ getDoctorReport($user, config('vars.room_queue_status.patient_in'), $all, $date_from, $date_to) }}</td>
-                                <td>{{ getDoctorReport($user, config('vars.room_queue_status.patient_out'), $all, $date_from, $date_to) }}</td>
-                                <td>{{ getPatientAverageTime($user, $date_from, $date_to) }}</td>
-                                <td>{{ (getCurrentDoctorReport($user))? 'Serving queue ' . getCurrentDoctorReport($user)->queue_number : '-' }}</td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @foreach($users as $user)
+                        <tr>
+                            <td>@if(isset($user->doctor->id)) @if(lang() == 'ar') {{$user->doctor->name_ar}} @else {{$user->doctor->name_en}} @endif @endif</td>
+                            <td>{{ isset($user->doctor->speciality->id) ? lang() == 'ar' ? $user->doctor->speciality->name_ar : $user->doctor->speciality->name_en : '-' }}</td>
+                            <td>{{ ($user->room)? $user->room->name_en : '-' }}</td>
+                            <td>{{ getDoctorReport($user, config('vars.room_queue_status.called'), $all, $date_from, $date_to) }}</td>
+                            <td>{{ getDoctorReport($user, config('vars.room_queue_status.skipped'), $all, $date_from, $date_to) }}</td>
+                            <td>{{ getDoctorReport($user, config('vars.room_queue_status.patient_in'), $all, $date_from, $date_to) }}</td>
+                            <td>{{ getDoctorReport($user, config('vars.room_queue_status.patient_out'), $all, $date_from, $date_to) }}</td>
+                            <td>{{ getPatientAverageTime($user, $date_from, $date_to) }}</td>
+                            <td>{{ (getCurrentDoctorReport($user))? 'Serving queue ' . getCurrentDoctorReport($user)->queue_number : '-' }}</td>
+                        </tr>
+                    @endforeach
                     </tbody>
                 </table>
             </div>

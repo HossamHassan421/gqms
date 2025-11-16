@@ -64,27 +64,14 @@
 
                     <tbody>
                     @foreach($users as $user)
-                        @if(request()->has('show') && request()->show == 0)
-                            @if(\App\DeskQueueStatus::where('user_id', $user->id)->where('created_at', 'like', "%".request()->date."%")->first())
-                            <tr>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ ($user->desk)? $user->desk->name_en : '-' }}</td>
-                                <td>{{ getDeskReport($user, config('vars.desk_queue_status.called'), $all, $date) }}</td>
-                                <td>{{ getDeskReport($user, config('vars.desk_queue_status.skipped'), $all, $date) }}</td>
-                                <td>{{ getDeskReport($user, config('vars.desk_queue_status.done'), $all, $date) }}</td>
-                                <td>{{ (getCurrentDeskReport($user))? 'Serving queue ' . getCurrentDeskReport($user)->queue_number : '-' }}</td>
-                            </tr>
-                            @endif
-                        @else
-                            <tr>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ ($user->desk)? $user->desk->name_en : '-' }}</td>
-                                <td>{{ getDeskReport($user, config('vars.desk_queue_status.called'), $all, $date) }}</td>
-                                <td>{{ getDeskReport($user, config('vars.desk_queue_status.skipped'), $all, $date) }}</td>
-                                <td>{{ getDeskReport($user, config('vars.desk_queue_status.done'), $all, $date) }}</td>
-                                <td>{{ (getCurrentDeskReport($user))? 'Serving queue ' . getCurrentDeskReport($user)->queue_number : '-' }}</td>
-                            </tr>
-                        @endif
+                        <tr>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ ($user->desk)? $user->desk->name_en : '-' }}</td>
+                            <td>{{ getDeskReport($user, config('vars.desk_queue_status.called'), $all, $date) }}</td>
+                            <td>{{ getDeskReport($user, config('vars.desk_queue_status.skipped'), $all, $date) }}</td>
+                            <td>{{ getDeskReport($user, config('vars.desk_queue_status.done'), $all, $date) }}</td>
+                            <td>{{ (getCurrentDeskReport($user))? 'Serving queue ' . getCurrentDeskReport($user)->queue_number : '-' }}</td>
+                        </tr>
                     @endforeach
                     </tbody>
                 </table>

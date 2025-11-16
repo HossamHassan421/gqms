@@ -130,6 +130,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     *  Relationship with room queue statuses
+     */
+    public function roomQueueStatuses()
+    {
+        return $this->hasMany('App\RoomQueueStatus', 'user_id', 'id');
+    }
+
+    /**
+     *  Relationship with desk queue statuses
+     */
+    public function deskQueueStatuses()
+    {
+        return $this->hasMany('App\DeskQueueStatus', 'user_id', 'id');
+    }
+
+    /**
      *  User authorities
      */
     public static function authorities($user)

@@ -249,37 +249,51 @@ function roomQueueNumberFormat($floor_id, $room_id, $scheme){
 }
 
 function getPatientAverageTime($user, $date_from, $date_to){
-    $patientIns = \App\RoomQueueStatus::where('user_id', $user->id)->where('queue_status_id', config('vars.room_queue_status.patient_in'));
-
     if($date_from == null){
         return '-';
-    }else{
-        $patientIns = $patientIns->whereBetween('created_at', [date($date_from), date($date_to)])->get();
-
-        $allDiffTime = 0;
-        foreach ($patientIns as $patientIn){
-            $patientOut = \App\RoomQueueStatus::where('user_id', $user->id)
-                ->where('queue_status_id', config('vars.room_queue_status.patient_out'))
-                ->where('room_queue_id', $patientIn->room_queue_id)->first();
-
-            if ($patientOut){
-                $patientInCreation = $patientIn->created_at;
-                $patientOutCreation = $patientOut->created_at;
-                $diffTime = $patientOutCreation->diffInSeconds($patientInCreation);
-                $allDiffTime += $diffTime;
-            }
-        }
-
-        // Average
-        if($allDiffTime == 0){
-            $average = 0;
-        }else{
-            $diff = ($allDiffTime/count($patientIns));
-            $average = gmdate('H:i:s', $diff);
-        }
-
-        return $average;
     }
+
+    // Get all patient_in records for the user in the date range
+    $patientIns = \App\RoomQueueStatus::where('user_id', $user->id)
+        ->where('queue_status_id', config('vars.room_queue_status.patient_in'))
+        ->whereBetween('created_at', [
+            date($date_from) . ' 00:00:00', 
+            date($date_to) . ' 23:59:59'
+        ])
+        ->get();
+
+    if($patientIns->isEmpty()){
+        return '-';
+    }
+
+    // Get all corresponding patient_out records in a single query
+    $roomQueueIds = $patientIns->pluck('room_queue_id')->toArray();
+    $patientOuts = \App\RoomQueueStatus::where('user_id', $user->id)
+        ->where('queue_status_id', config('vars.room_queue_status.patient_out'))
+        ->whereIn('room_queue_id', $roomQueueIds)
+        ->get()
+        ->keyBy('room_queue_id');
+
+    $allDiffTime = 0;
+    $validCount = 0;
+
+    foreach ($patientIns as $patientIn){
+        $patientOut = $patientOuts->get($patientIn->room_queue_id);
+
+        if ($patientOut){
+            $diffTime = $patientOut->created_at->diffInSeconds($patientIn->created_at);
+            $allDiffTime += $diffTime;
+            $validCount++;
+        }
+    }
+
+    // Average
+    if($allDiffTime == 0 || $validCount == 0){
+        return '-';
+    }
+
+    $diff = ($allDiffTime / $validCount);
+    return gmdate('H:i:s', $diff);
 }
 
 function getQueuePatientTime($queueOpj, $toType, $timeType){
