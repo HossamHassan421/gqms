@@ -11,7 +11,7 @@ class ReportsController extends Controller
     // Index Desks Reports
     public function desksIndex(Request $request)
     {
-        $data['allUsers'] = User::where('type', UserTypes::$typesReverse['Desk'])
+        $data['allUsers'] = User::where('type', UserTypes::$typesReverse['Desk'])->where('status', 1)
             ->groupBy('name')
             ->get();
         
@@ -19,7 +19,7 @@ class ReportsController extends Controller
         $data['all'] = null;
 
         // Build the query
-        $usersQuery = User::where('type', UserTypes::$typesReverse['Desk']);
+        $usersQuery = User::where('type', UserTypes::$typesReverse['Desk'])->where('status', 1);
 
         // Filter by specific user if requested
         if ($request->has('user') && $request->user) {
@@ -65,7 +65,7 @@ class ReportsController extends Controller
     // Index Doctors Reports
     public function doctorsIndex(Request $request)
     {
-        $data['allUsers'] = User::where('type', UserTypes::$typesReverse['Doctor'])
+        $data['allUsers'] = User::where('type', UserTypes::$typesReverse['Doctor'])->where('status', 1)
             ->groupBy('name')
             ->get();
         
@@ -74,7 +74,7 @@ class ReportsController extends Controller
         $data['all'] = null;
 
         // Build the query
-        $usersQuery = User::where('type', UserTypes::$typesReverse['Doctor']);
+        $usersQuery = User::where('type', UserTypes::$typesReverse['Doctor'])->where('status', 1);
 
         // Filter by specific user if requested
         if ($request->has('user') && $request->user) {

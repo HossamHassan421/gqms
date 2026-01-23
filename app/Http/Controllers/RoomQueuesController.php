@@ -361,9 +361,9 @@ class RoomQueuesController extends Controller
     {
         // Check if there is a waiting patient
         $data['desk'] = Room::getBy('uuid', $room_uuid);
-        $data['nextQueue'] = DeskQueue::where('floor_id', $data['desk']->floor_id)
+        $data['nextQueue'] = RoomQueue::getBy('uuid', $room_queue_uuid)
             ->where('created_at', 'like', "%".date('Y-m-d')."%")
-            ->where('status', config('vars.desk_queue_status.waiting'))
+            ->where('status', config('vars.room_queue_status.waiting'))
             ->first();
 
         if($data['nextQueue']){
@@ -406,7 +406,7 @@ class RoomQueuesController extends Controller
                 'text' => 'Patient now in clinic',
             ];
 
-            $data['roomQueue'] = RoomQueue::getBy('uuid', $room_queue_uuid);
+            $data['roomQueue'] = $roomQueue;
 
             // Broadcast event
             $data['availableRoomQueue'] = RoomQueue::getAvailableRoomQueueViewByDoctor($data['doctor']->source_doctor_id);
