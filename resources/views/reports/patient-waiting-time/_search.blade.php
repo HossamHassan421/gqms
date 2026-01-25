@@ -92,7 +92,56 @@
 
     <div class="row">
         <div class="col-md-12">
-            <p class="text-muted"><small><i class="fa fa-info-circle"></i> Maximum date range is 31 days. Default is last 7 days.</small></p>
+            <p class="text-muted"><small><i class="fa fa-info-circle"></i> Maximum date range is 7 days. Default is today.</small></p>
+            <p class="text-danger" id="date-range-error" style="display: none;"><small><i class="fa fa-exclamation-circle"></i> <strong>Error:</strong> Date range cannot exceed 7 days.</small></p>
         </div>
     </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateFromInput = document.getElementById('date_from');
+    const dateToInput = document.getElementById('date_to');
+    const errorMessage = document.getElementById('date-range-error');
+    const submitButton = document.querySelector('form button[type="submit"]');
+
+    function validateDateRange() {
+        if (dateFromInput.value && dateToInput.value) {
+            const dateFrom = new Date(dateFromInput.value);
+            const dateTo = new Date(dateToInput.value);
+            
+            // Calculate difference in days
+            const diffTime = Math.abs(dateTo - dateFrom);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 7) {
+                errorMessage.style.display = 'block';
+                submitButton.disabled = true;
+                submitButton.classList.add('disabled');
+                return false;
+            } else {
+                errorMessage.style.display = 'none';
+                submitButton.disabled = false;
+                submitButton.classList.remove('disabled');
+                return true;
+            }
+        }
+        errorMessage.style.display = 'none';
+        submitButton.disabled = false;
+        submitButton.classList.remove('disabled');
+        return true;
+    }
+
+    // Validate on date change
+    dateFromInput.addEventListener('change', validateDateRange);
+    dateToInput.addEventListener('change', validateDateRange);
+
+    // Prevent form submission if validation fails
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!validateDateRange()) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>

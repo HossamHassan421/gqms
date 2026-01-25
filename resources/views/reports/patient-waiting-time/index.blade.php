@@ -118,13 +118,15 @@
                             $doctor = $reservation ? $reservation->doctor : null;
                             $speciality = $doctor ? $doctor->speciality : null;
                             
+                            // Get pre-calculated data
+                            $queueData = $processedData[$roomQueue->id] ?? null;
                             $paymentTime = $roomQueue->created_at;
-                            $callTime = getPatientCallTime($roomQueue);
-                            $skipTime = getPatientFirstSkipTime($roomQueue);
-                            $checkInTime = getPatientCheckInTime($roomQueue);
-                            $checkOutTime = getPatientCheckOutTime($roomQueue);
-                            $waitingDuration = calculateWaitingDuration($roomQueue);
-                            $visitDuration = calculateVisitDuration($roomQueue);
+                            $callTime = $queueData['call_time'] ?? null;
+                            $skipTime = $queueData['skip_time'] ?? null;
+                            $checkInTime = $queueData['check_in_time'] ?? null;
+                            $checkOutTime = $queueData['check_out_time'] ?? null;
+                            $waitingDuration = $queueData['waiting_duration'] ?? null;
+                            $visitDuration = $queueData['visit_duration'] ?? null;
                         @endphp
                         <tr>
                             <td>

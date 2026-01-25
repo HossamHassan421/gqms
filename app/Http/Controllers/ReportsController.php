@@ -130,8 +130,8 @@ class ReportsController extends Controller
             $dateFrom = \Carbon\Carbon::parse($request->date_from);
             $dateTo = \Carbon\Carbon::parse($request->date_to);
             
-            if ($dateFrom->diffInDays($dateTo) > 31) {
-                return redirect()->back()->withErrors(['date_range' => 'Date range cannot exceed 31 days.']);
+            if ($dateFrom->diffInDays($dateTo) > 7) {
+                return redirect()->back()->withErrors(['date_range' => 'Date range cannot exceed 7 days.']);
             }
         }
 
@@ -172,8 +172,8 @@ class ReportsController extends Controller
                 ]);
             });
         } else {
-            // Default to last 7 days
-            $data['date_from'] = \Carbon\Carbon::now()->subDays(7)->format('Y-m-d');
+            // Default to 1 day (today)
+            $data['date_from'] = \Carbon\Carbon::now()->format('Y-m-d');
             $data['date_to'] = \Carbon\Carbon::now()->format('Y-m-d');
             
             $roomQueuesQuery->whereHas('reservation', function($query) use ($data) {
@@ -225,11 +225,73 @@ class ReportsController extends Controller
         $roomQueuesQuery->orderBy('created_at', 'DESC');
 
         // Get the results with pagination
-        $data['roomQueues'] = $roomQueuesQuery->paginate(50);
+        $roomQueues = $roomQueuesQuery->paginate(50);
+
+        // Pre-load all room queue statuses for current page to avoid N+1 queries
+        $roomQueueIds = $roomQueues->pluck('id')->toArray();
+        
+        // Fetch all statuses at once and group by room_queue_id and status type
+        $allStatuses = \App\RoomQueueStatus::whereIn('room_queue_id', $roomQueueIds)
+            ->whereIn('queue_status_id', [
+                config('vars.queue_statuses.called'),
+                config('vars.queue_statuses.skipped'),
+                config('vars.queue_statuses.patient_in'),
+                config('vars.queue_statuses.patient_out')
+            ])
+            ->orderBy('created_at', 'ASC')
+            ->get()
+            ->groupBy('room_queue_id');
+
+        // Pre-calculate all timestamps and durations
+        $processedData = [];
+        $totalWaitingSeconds = 0;
+        $totalVisitSeconds = 0;
+        $waitingCount = 0;
+        $visitCount = 0;
+
+        foreach ($roomQueues as $roomQueue) {
+            $statuses = $allStatuses->get($roomQueue->id, collect());
+            
+            // Extract timestamps
+            $callTime = $statuses->where('queue_status_id', config('vars.queue_statuses.called'))->first();
+            $skipTime = $statuses->where('queue_status_id', config('vars.queue_statuses.skipped'))->first();
+            $checkInTime = $statuses->where('queue_status_id', config('vars.queue_statuses.patient_in'))->first();
+            $checkOutTime = $statuses->where('queue_status_id', config('vars.queue_statuses.patient_out'))->first();
+            
+            // Calculate durations
+            $waitingDuration = null;
+            $visitDuration = null;
+            
+            $endTime = $skipTime ? $skipTime->created_at : ($checkInTime ? $checkInTime->created_at : null);
+            if ($endTime) {
+                $diffInSeconds = $roomQueue->created_at->diffInSeconds($endTime);
+                $waitingDuration = gmdate('H:i', $diffInSeconds);
+                $totalWaitingSeconds += $diffInSeconds;
+                $waitingCount++;
+            }
+            
+            if ($checkInTime && $checkOutTime) {
+                $diffInSeconds = $checkInTime->created_at->diffInSeconds($checkOutTime->created_at);
+                $visitDuration = gmdate('H:i', $diffInSeconds);
+                $totalVisitSeconds += $diffInSeconds;
+                $visitCount++;
+            }
+            
+            $processedData[$roomQueue->id] = [
+                'call_time' => $callTime ? $callTime->created_at : null,
+                'skip_time' => $skipTime ? $skipTime->created_at : null,
+                'check_in_time' => $checkInTime ? $checkInTime->created_at : null,
+                'check_out_time' => $checkOutTime ? $checkOutTime->created_at : null,
+                'waiting_duration' => $waitingDuration,
+                'visit_duration' => $visitDuration,
+            ];
+        }
 
         // Calculate averages
-        $data['averageWaitingTime'] = calculateAverageWaitingTime($data['roomQueues']);
-        $data['averageVisitDuration'] = calculateAverageVisitDuration($data['roomQueues']);
+        $data['averageWaitingTime'] = $waitingCount > 0 ? gmdate('H:i', $totalWaitingSeconds / $waitingCount) : 'N/A';
+        $data['averageVisitDuration'] = $visitCount > 0 ? gmdate('H:i', $totalVisitSeconds / $visitCount) : 'N/A';
+        $data['processedData'] = $processedData;
+        $data['roomQueues'] = $roomQueues;
 
         // Store User Action Log
         storeLogUserAction(\App\Enums\LogUserActions::$name['IndexPatientWaitingTimeReport'] ?? 'Index Patient Waiting Time Report', 'Get', route('reports.patient-waiting-time.index'));

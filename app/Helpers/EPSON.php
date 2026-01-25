@@ -13,9 +13,17 @@ class EPSON
         $printer = self::USBPrint($inputs['printer_ip']);
         $printer->setJustification(Printer::JUSTIFY_CENTER);
 
-        // Image
-        $img = EscposImage::load(get_path('assets/images/ganz-logo-print.jpg'));
-        $printer->graphics($img, Printer::IMG_DEFAULT);
+        // Image (optional - skip if file doesn't exist)
+        $logoPath = get_path('assets/images/ganz-logo-print.jpg');
+        if (file_exists($logoPath) && is_readable($logoPath)) {
+            try {
+                $img = EscposImage::load($logoPath);
+                $printer->graphics($img, Printer::IMG_DEFAULT);
+            } catch (\Exception $e) {
+                // Log error but continue printing without logo
+                // \Log::warning('Failed to load printer logo: ' . $e->getMessage());
+            }
+        }
 //        $printer->feed(1);
 
         // Queue Number
