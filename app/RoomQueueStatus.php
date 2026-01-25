@@ -66,4 +66,19 @@ class RoomQueueStatus extends Model
 
         return $count;
     }
+
+    // RoomQueue Relation
+    public function roomQueue(){
+        return $this->belongsTo('App\RoomQueue', 'room_queue_id');
+    }
+
+    // QueueStatus Relation
+    public function queueStatus(){
+        return $this->belongsTo('App\QueueStatus', 'queue_status_id');
+    }
+
+    // User Relation
+    public function user(){
+        return $this->belongsTo('App\User');
+    }
 }

@@ -38,4 +38,5 @@ return array (
   'Reports' => 'Reports',
   'Desks_Reports' => 'Desks Reports',
   'Doctors_Reports' => 'Doctors Reports',
+  'Patient_Waiting_Time_Report' => 'Patient Jurney Report',
 );

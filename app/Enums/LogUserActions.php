@@ -38,5 +38,6 @@ class LogUserActions
         // Reports
         'IndexDeskReport' => 'Index Desk Report',
         'IndexDoctorReport' => 'Index Doctor Report',
+        'IndexPatientWaitingTimeReport' => 'Index Patient Waiting Time Report',
     ];
 }

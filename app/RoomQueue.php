@@ -380,4 +380,9 @@ class RoomQueue extends Model
     public function roomQueueStatusHistories(){
         return $this->hasMany('App\RoomQueueStatus', 'room_queue_id');
     }
+
+    // Reservation Relation
+    public function reservation(){
+        return $this->belongsTo('App\Reservation', 'reservation_source_serial', 'source_reservation_serial');
+    }
 }

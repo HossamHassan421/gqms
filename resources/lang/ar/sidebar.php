@@ -38,4 +38,5 @@ return array (
   'User_logins' => 'تسجيلات دخول المستخدم',
   'Users' => 'المستخدمين',
   'Logs' => 'السجلات',
+  'Patient_Waiting_Time_Report' => 'تقرير وقت المريض',
 );

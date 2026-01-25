@@ -121,4 +121,119 @@ class ReportsController extends Controller
 
         return view('reports.doctors.index', $data);
     }
+
+    // Index Patient Waiting Time Reports
+    public function patientWaitingTimeIndex(Request $request)
+    {
+        // Validate date range if provided
+        if ($request->has('date_from') && $request->has('date_to') && $request->date_from && $request->date_to) {
+            $dateFrom = \Carbon\Carbon::parse($request->date_from);
+            $dateTo = \Carbon\Carbon::parse($request->date_to);
+            
+            if ($dateFrom->diffInDays($dateTo) > 31) {
+                return redirect()->back()->withErrors(['date_range' => 'Date range cannot exceed 31 days.']);
+            }
+        }
+
+        // Get all specialities for filter dropdown
+        $data['allSpecialities'] = \App\Speciality::orderBy('name_en', 'ASC')->get();
+        
+        // Get all doctors for filter dropdown
+        $data['allDoctors'] = \App\Doctor::where('workstatus', 1)->orderBy('name_en', 'ASC')->get();
+        
+        // Initialize filter data
+        $data['date_from'] = null;
+        $data['date_to'] = null;
+        $data['patient_name'] = null;
+        $data['patient_phone'] = null;
+        $data['selected_speciality'] = null;
+        $data['selected_doctor'] = null;
+
+        // Build the query
+        $roomQueuesQuery = \App\RoomQueue::query()
+            ->with([
+                'reservation.patient',
+                'reservation.doctor.speciality',
+                'roomQueueStatusHistories.queueStatus'
+            ])
+            ->whereHas('reservation', function($query) {
+                $query->where('cashier_flag', 1);
+            });
+
+        // Apply date range filter (default to last 7 days)
+        if ($request->has('date_from') && $request->date_from != null && $request->has('date_to') && $request->date_to != null) {
+            $data['date_from'] = $request->date_from;
+            $data['date_to'] = $request->date_to;
+            
+            $roomQueuesQuery->whereHas('reservation', function($query) use ($request) {
+                $query->whereBetween('reservation_date_time', [
+                    $request->date_from . ' 00:00:00',
+                    $request->date_to . ' 23:59:59'
+                ]);
+            });
+        } else {
+            // Default to last 7 days
+            $data['date_from'] = \Carbon\Carbon::now()->subDays(7)->format('Y-m-d');
+            $data['date_to'] = \Carbon\Carbon::now()->format('Y-m-d');
+            
+            $roomQueuesQuery->whereHas('reservation', function($query) use ($data) {
+                $query->whereBetween('reservation_date_time', [
+                    $data['date_from'] . ' 00:00:00',
+                    $data['date_to'] . ' 23:59:59'
+                ]);
+            });
+        }
+
+        // Filter by patient name
+        if ($request->has('patient_name') && $request->patient_name) {
+            $data['patient_name'] = $request->patient_name;
+            $roomQueuesQuery->whereHas('reservation.patient', function($query) use ($request) {
+                $query->where('name_en', 'like', '%' . $request->patient_name . '%')
+                      ->orWhere('name_ar', 'like', '%' . $request->patient_name . '%');
+            });
+        }
+
+        // Filter by patient phone
+        if ($request->has('patient_phone') && $request->patient_phone) {
+            $data['patient_phone'] = $request->patient_phone;
+            $roomQueuesQuery->whereHas('reservation.patient', function($query) use ($request) {
+                $query->where('phone', 'like', '%' . $request->patient_phone . '%');
+            });
+        }
+
+        // Filter by speciality
+        if ($request->has('speciality') && $request->speciality) {
+            $selectedSpeciality = \App\Speciality::where('uuid', $request->speciality)->first();
+            if ($selectedSpeciality) {
+                $data['selected_speciality'] = $selectedSpeciality;
+                $roomQueuesQuery->whereHas('reservation', function($query) use ($selectedSpeciality) {
+                    $query->where('speciality_id', $selectedSpeciality->source_speciality_id);
+                });
+            }
+        }
+
+        // Filter by doctor
+        if ($request->has('doctor') && $request->doctor) {
+            $selectedDoctor = \App\Doctor::where('uuid', $request->doctor)->first();
+            if ($selectedDoctor) {
+                $data['selected_doctor'] = $selectedDoctor;
+                $roomQueuesQuery->where('doctor_id', $selectedDoctor->source_doctor_id);
+            }
+        }
+
+        // Order by creation date (payment time)
+        $roomQueuesQuery->orderBy('created_at', 'DESC');
+
+        // Get the results with pagination
+        $data['roomQueues'] = $roomQueuesQuery->paginate(50);
+
+        // Calculate averages
+        $data['averageWaitingTime'] = calculateAverageWaitingTime($data['roomQueues']);
+        $data['averageVisitDuration'] = calculateAverageVisitDuration($data['roomQueues']);
+
+        // Store User Action Log
+        storeLogUserAction(\App\Enums\LogUserActions::$name['IndexPatientWaitingTimeReport'] ?? 'Index Patient Waiting Time Report', 'Get', route('reports.patient-waiting-time.index'));
+
+        return view('reports.patient-waiting-time.index', $data);
+    }
 }

@@ -429,3 +429,136 @@ function getRoomQueuePatientServeTime($queueOpj){
 
     return gmdate('H:i:s', $diffTime);
 }
+
+/**
+ * Get patient call time (when patient was called to doctor's room)
+ */
+function getPatientCallTime($roomQueue){
+    $called = \App\RoomQueueStatus::where('room_queue_id', $roomQueue->id)
+        ->where('queue_status_id', config('vars.queue_statuses.called'))
+        ->first();
+    
+    return $called ? $called->created_at : null;
+}
+
+/**
+ * Get first skip time for patient
+ */
+function getPatientFirstSkipTime($roomQueue){
+    $skipped = \App\RoomQueueStatus::where('room_queue_id', $roomQueue->id)
+        ->where('queue_status_id', config('vars.queue_statuses.skipped'))
+        ->orderBy('created_at', 'ASC')
+        ->first();
+    
+    return $skipped ? $skipped->created_at : null;
+}
+
+/**
+ * Get patient check-in time (when patient entered doctor's room)
+ */
+function getPatientCheckInTime($roomQueue){
+    $patientIn = \App\RoomQueueStatus::where('room_queue_id', $roomQueue->id)
+        ->where('queue_status_id', config('vars.queue_statuses.patient_in'))
+        ->first();
+    
+    return $patientIn ? $patientIn->created_at : null;
+}
+
+/**
+ * Get patient check-out time (when consultation ended)
+ */
+function getPatientCheckOutTime($roomQueue){
+    $patientOut = \App\RoomQueueStatus::where('room_queue_id', $roomQueue->id)
+        ->where('queue_status_id', config('vars.queue_statuses.patient_out'))
+        ->first();
+    
+    return $patientOut ? $patientOut->created_at : null;
+}
+
+/**
+ * Calculate total waiting duration (Check-in Time - Payment Time)
+ * Priority: Use skip time if available, otherwise use check-in time
+ */
+function calculateWaitingDuration($roomQueue){
+    $paymentTime = $roomQueue->created_at;
+    $skipTime = getPatientFirstSkipTime($roomQueue);
+    $checkInTime = getPatientCheckInTime($roomQueue);
+    
+    // Use skip time if found, otherwise use check-in time
+    $endTime = $skipTime ?: $checkInTime;
+    
+    if (!$endTime) {
+        return null;
+    }
+    
+    $diffInSeconds = $paymentTime->diffInSeconds($endTime);
+    return gmdate('H:i', $diffInSeconds);
+}
+
+/**
+ * Calculate total visit duration (Check-out Time - Check-in Time)
+ */
+function calculateVisitDuration($roomQueue){
+    $checkInTime = getPatientCheckInTime($roomQueue);
+    $checkOutTime = getPatientCheckOutTime($roomQueue);
+    
+    if (!$checkInTime || !$checkOutTime) {
+        return null;
+    }
+    
+    $diffInSeconds = $checkInTime->diffInSeconds($checkOutTime);
+    return gmdate('H:i', $diffInSeconds);
+}
+
+/**
+ * Calculate average waiting time from collection
+ */
+function calculateAverageWaitingTime($roomQueues){
+    $totalSeconds = 0;
+    $count = 0;
+    
+    foreach ($roomQueues as $roomQueue) {
+        $paymentTime = $roomQueue->created_at;
+        $skipTime = getPatientFirstSkipTime($roomQueue);
+        $checkInTime = getPatientCheckInTime($roomQueue);
+        
+        $endTime = $skipTime ?: $checkInTime;
+        
+        if ($endTime) {
+            $totalSeconds += $paymentTime->diffInSeconds($endTime);
+            $count++;
+        }
+    }
+    
+    if ($count == 0) {
+        return 'N/A';
+    }
+    
+    $avgSeconds = $totalSeconds / $count;
+    return gmdate('H:i', $avgSeconds);
+}
+
+/**
+ * Calculate average visit duration from collection
+ */
+function calculateAverageVisitDuration($roomQueues){
+    $totalSeconds = 0;
+    $count = 0;
+    
+    foreach ($roomQueues as $roomQueue) {
+        $checkInTime = getPatientCheckInTime($roomQueue);
+        $checkOutTime = getPatientCheckOutTime($roomQueue);
+        
+        if ($checkInTime && $checkOutTime) {
+            $totalSeconds += $checkInTime->diffInSeconds($checkOutTime);
+            $count++;
+        }
+    }
+    
+    if ($count == 0) {
+        return 'N/A';
+    }
+    
+    $avgSeconds = $totalSeconds / $count;
+    return gmdate('H:i', $avgSeconds);
+}

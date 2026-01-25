@@ -33,5 +33,13 @@ return [
         'patient_out' => 10,
         'call_from_skip' => 11,
     ],
+    'queue_statuses' => [
+        'waiting' => 6,
+        'called' => 7,
+        'patient_in' => 8,
+        'skipped' => 9,
+        'patient_out' => 10,
+        'call_from_skip' => 11,
+    ],
 
 ];

@@ -48,3 +48,4 @@ yarn-error.log
 .env
 .phpunit.result.cache
 .nvmrc
+reset_password_direct.php

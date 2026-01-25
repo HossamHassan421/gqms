@@ -108,6 +108,7 @@ Route::group([
     // Reports
     Route::get('reports/desks', 'ReportsController@desksIndex')->name('reports.desks.index');
     Route::get('reports/doctors', 'ReportsController@doctorsIndex')->name('reports.doctors.index');
+    Route::get('reports/patient-waiting-time', 'ReportsController@patientWaitingTimeIndex')->name('reports.patient-waiting-time.index');
 
     // Reset password
     Route::get('users/{user}/reset_password', 'UsersController@resetPassword')->name('users.reset_password');
