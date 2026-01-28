@@ -85,6 +85,11 @@ class RoomQueue extends Model
             ->orderBy('queue_number' , 'ASC')
             ->first();
 
+        // If no queue found, return null
+        if (!$data['nextQueue']) {
+            return null;
+        }
+
         $data['nextQueueIfDuplicates'] = self::where('doctor_id', $doctor_source_id)
             ->where('created_at', 'like', "%".date('Y-m-d')."%")
             ->where('status', config('vars.room_queue_status.waiting'))
