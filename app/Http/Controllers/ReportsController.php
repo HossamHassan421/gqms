@@ -265,14 +265,14 @@ class ReportsController extends Controller
             $endTime = $skipTime ? $skipTime->created_at : ($checkInTime ? $checkInTime->created_at : null);
             if ($endTime) {
                 $diffInSeconds = $roomQueue->created_at->diffInSeconds($endTime);
-                $waitingDuration = gmdate('H:i', $diffInSeconds);
+                $waitingDuration = gmdate('H:i:s', $diffInSeconds);
                 $totalWaitingSeconds += $diffInSeconds;
                 $waitingCount++;
             }
             
             if ($checkInTime && $checkOutTime) {
                 $diffInSeconds = $checkInTime->created_at->diffInSeconds($checkOutTime->created_at);
-                $visitDuration = gmdate('H:i', $diffInSeconds);
+                $visitDuration = gmdate('H:i:s', $diffInSeconds);
                 $totalVisitSeconds += $diffInSeconds;
                 $visitCount++;
             }
@@ -288,8 +288,8 @@ class ReportsController extends Controller
         }
 
         // Calculate averages
-        $data['averageWaitingTime'] = $waitingCount > 0 ? gmdate('H:i', $totalWaitingSeconds / $waitingCount) : 'N/A';
-        $data['averageVisitDuration'] = $visitCount > 0 ? gmdate('H:i', $totalVisitSeconds / $visitCount) : 'N/A';
+        $data['averageWaitingTime'] = $waitingCount > 0 ? gmdate('H:i:s', $totalWaitingSeconds / $waitingCount) : 'N/A';
+        $data['averageVisitDuration'] = $visitCount > 0 ? gmdate('H:i:s', $totalVisitSeconds / $visitCount) : 'N/A';
         $data['processedData'] = $processedData;
         $data['roomQueues'] = $roomQueues;
 
